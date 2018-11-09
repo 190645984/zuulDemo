@@ -1,0 +1,54 @@
+ eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://192.168.4.138:8765
+ spring:
+  application:
+    name: rig
+
+ ##zuul.ForBiddenFilter.pre.disable: true
+ zuul.SendErrorFilter.error.disable: true
+ zuul:
+  ###默认/zuul
+  servlet-path: /rig 
+  ##全局的敏感头
+  sensitiveHeaders:
+  ##忽略安全投，主要是对于springSecruity的支持
+  ignoreSecurityHeaders: false
+  ###忽略的请求 * 代表所有
+  ignoredServices: '*'
+  debug:
+    request: true
+  route:
+    home: /rig/**
+  error:
+    path: zuulError
+  routes:
+    acc:
+      path: /acc-app/**
+      url: http://acc.sit.com/
+      stripPrefix: false
+    usr:
+      path: /usr-app/**
+      serviceId: usr-app
+      stripPrefix: false
+      ##敏感头 传递所有的header，覆盖全局的敏感头
+      sensitiveHeaders:
+      ## stripPrefix: false  默认为true 忽略usr-app  如果为false 则添加usr-app
+      ###* 代表一个层级 ** 代表俩个层级
+      ## 选择使用yml文件是因为 route 会覆盖，比如 test:/** 将导致 usr 和usrr 不可用
+      ### zuul客户端使用 ribbon.restclient.enabled=true 启用ribbon客户端
+      ## ribbon.okhttp.enabled=true 使用okClient
+    legacy:
+      path: /**
+      url: forward:/
+    ribbon:
+      eager-load:
+        enabled: true
+ usr-app:
+  ribbon:
+    eureka:
+      enabled: true
+
